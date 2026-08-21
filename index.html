@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACG WHITE | Acesso Exclusivo</title>
+    
+    <!-- Bibliotecas externas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* ============================================
+           IMPORTAÇÃO DE FONTES
+           ============================================ */
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1+Code&family=Roboto:wght@400;700;900&display=swap');
+
+        /* ============================================
+           RESET E CONFIGURAÇÕES GLOBAIS
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #000000 !important;
+        }
+
+        /* ============================================
+           MENU HAMBÚRGUER (3 TRAÇOS)
+           ============================================ */
+        .menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10000;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            z-index: 10002;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .menu-toggle:hover {
+            background: #00ff00;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .menu-toggle:hover .bar {
+            background: #000;
+        }
+
+        .bar {
+            width: 28px;
+            height: 3px;
+            background: #00ff00;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .menu-toggle.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+            background: #ff0000;
+        }
+
+        .menu-toggle.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+            background: #ff0000;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(15px);
+            border-right: 2px solid #00ff00;
+            z-index: 10001;
+            transition: left 0.4s ease;
+            padding-top: 80px;
+            box-shadow: 5px 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-items li {
+            margin: 5px 20px;
+        }
+
+        .menu-items li a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .menu-items li a i {
+            width: 25px;
+            font-size: 20px;
+            color: #00ff00;
+        }
+
+        .menu-items li a:hover {
+            background: rgba(0, 255, 0, 0.15);
+            border-color: #00ff00;
+            transform: translateX(10px);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .menu-version {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            padding: 15px;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            margin: 0 20px;
+        }
+
+        .menu-item-hidden {
+            display: none !important;
+        }
+
+        /* ============================================
+           WRAPPER DO FUNDO
+           ============================================ */
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            background-image: url('https://lh7-us.googleusercontent.com/_n83iARHxwdrut8_mLMYQzYn93AmzA-8TVwOZ5k7tjVwigoSQzBwfWPu9BOcDkA_AgKAplhjzXhc9WQCwfmuFTJ6vI1010VVnSMJqhgUCX3zu9gaN1mi6wL17UDn4UsXh43_OxrE5juATBM-9CCCB0A');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0a0a0a;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        /* ============================================
+           BOTÃO WHATSAPP FLUTUANTE
+           ============================================ */
+        .whatsapp-plug-icon {
+            position: fixed;
+            z-index: 1000;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            background-color: #25D366;
+            transition: .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.5);
+            text-decoration: none;
+        }
+
+        .whatsapp-plug-icon i {
+            font-size: 32px;
+            color: #fff;
+        }
+
+        .whatsapp-plug-icon:hover {
+            background-color: #128C7E;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.8);
+        }
+
+        .whatsapp-plug-icon::after, .whatsapp-plug-icon::before {
+            content: '';
+            position: absolute;
+            opacity: 0;
+            border: 4px solid #25D366;
+            left: -10px;
+            top: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            animation: WaveWhatsApp 1.5s ease infinite;
+        }
+
+        .whatsapp-plug-icon::after {
+            animation-delay: .5s;
+        }
+
+        @keyframes WaveWhatsApp {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        /* ============================================
+           CONTAINER PRINCIPAL
+           ============================================ */
+        .main-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            z-index: 1;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* ============================================
+           NOME 3D GIRATÓRIO
+           ============================================ */
+        .profile-name-3d {
+            display: inline-block;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 4px;
+            color: #00ff00;
+            text-shadow: 
+                0 1px 0 #00cc00,
+                0 2px 0 #009900,
+                0 3px 0 #006600,
+                0 4px 0 #004400,
+                0 5px 0 #002200,
+                0 6px 0 #001100,
+                0 7px 0 #000000,
+                0 8px 5px rgba(0,0,0,0.5),
+                0 12px 10px rgba(0,0,0,0.3),
+                0 15px 15px rgba(0,0,0,0.2),
+                0 0 20px #00ff00,
+                0 0 40px #00ff00,
+                0 0 60px #00ff00;
+            animation: rotate3dAdvanced 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes rotate3dAdvanced {
+            0% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+            25% { transform: rotateY(20deg) rotateX(8deg) translateZ(20px); }
+            50% { transform: rotateY(0deg) rotateX(12deg) translateZ(30px); }
+            75% { transform: rotateY(-20deg) rotateX(8deg) translateZ(20px); }
+            100% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+        }
+
+        /* ============================================
+           IMAGEM DE PERFIL
+           ============================================ */
+        .login-intro-img {
+            width: 150px;
+            height: 150px;
+            margin: 5px auto;
+            display: block;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), 0 0 60px rgba(0, 255, 0, 0.2);
+            background: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .login-intro-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============================================
+           FORMULÁRIO DE LOGIN/CADASTRO
+           ============================================ */
+        .register-form {
+            width: 100%;
+        }
+
+        .register-form p {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #00ff37;
+            box-shadow: 0 0 20px rgba(0, 255, 55, 0.4);
+            background-color: rgba(0, 0, 0, 0.9);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ============================================
+           MENSAGENS DE FEEDBACK
+           ============================================ */
+        #loading-message {
+            display: none;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #00ff00;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #ff0000;
+            font-size: 14px;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(0, 255, 0, 0.15);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #00ff00;
+            font-size: 14px;
+        }
+
+        /* ============================================
+           BOTÕES DE AÇÃO
+           ============================================ */
+        .btn-login, .btn-register, .btn-toggle-form {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-login {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .btn-register {
+            background: linear-gradient(45deg, #ff6b00, #ff4400);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .btn-register:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
+        }
+
+        .btn-toggle-form {
+            background: rgba(255, 255, 255, 0.05);
+            color: #00ff00;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .btn-toggle-form:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-title {
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .hidden-form {
+            display: none;
+        }
+
+        /* ============================================
+           BOTÕES DAS PLATAFORMAS
+           ============================================ */
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .col {
+            flex: 1;
+            padding: 0;
+        }
+
+        .btn-primary1, .btn-primary2 {
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid;
+            color: #fff;
+            font-family: 'M PLUS 1 Code', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-primary1 {
+            border-color: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-primary2 {
+            border-color: #00ff37;
+            box-shadow: 0 0 15px rgba(0, 255, 55, 0.3);
+        }
+
+        .btn-primary1:hover {
+            background: rgba(255, 0, 0, 0.2);
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+        }
+
+        .btn-primary2:hover {
+            background: rgba(0, 255, 55, 0.2);
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(0, 255, 55, 0.5);
+        }
+
+        .icon-small {
+            width: 80px;
+            height: auto;
+        }
+
+        .large-icon {
+            width: 100px;
+            height: auto;
+        }
+
+        .logo-original {
+            filter: none !important;
+        }
+
+        /* ============================================
+           PLANOS DE ASSINATURA (SEMPRE VISÍVEIS)
+           ============================================ */
+        .plans-section {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .plans-title {
+            color: #fff;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .plans-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .plan-card {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .plan-card:hover {
+            transform: scale(1.02);
+            border-color: #00ff00;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
+        }
+
+        .plan-card.recommended {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            position: relative;
+        }
+
+        .plan-card.recommended::before {
+            content: '⭐ RECOMENDADO';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: #ffd700;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .plan-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .plan-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .plan-name i {
+            margin-right: 8px;
+            color: #00ff00;
+        }
+
+        .plan-detail {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        .plan-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ff00;
+            background: #000;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .plan-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .plan-price .price {
+            color: #00ff00;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .plan-price .price-old {
+            color: #ff4d4d;
+            font-size: 14px;
+            text-decoration: line-through;
+        }
+
+        .plan-price .price-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+
+        .plan-btn {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .plan-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .plan-card.recommended .plan-btn {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+        }
+
+        /* ============================================
+           PAINEL ADMINISTRATIVO
+           ============================================ */
+        .admin-panel {
+            display: none;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            backdrop-filter: blur(8px);
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-title {
+            color: #ffd700;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .admin-table {
+            width: 100%;
+            color: #fff;
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            color: #ffd700;
+            text-align: left;
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .admin-table td {
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-table .status-pending {
+            color: #ff6b6b;
+        }
+
+        .admin-table .status-approved {
+            color: #00ff00;
+        }
+
+        .admin-btn-approve {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-approve:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .admin-btn-delete {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-delete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        .admin-empty {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .admin-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .admin-login-form .form-control {
+            text-align: center;
+        }
+
+        .btn-admin-login {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-admin-login:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .admin-logout {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #ff0000;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .admin-logout:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .admin-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        .admin-stats span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* ============================================
+           REDES SOCIAIS
+           ============================================ */
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            border: 2px solid;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icons a i {
+            font-size: 30px;
+        }
+
+        .social-icons a.instagram {
+            color: #E1306C;
+            border-color: #E1306C;
+            box-shadow: 0 0 20px rgba(225, 48, 108, 0.3);
+        }
+
+        .social-icons a.instagram:hover {
+            background: #E1306C;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(225, 48, 108, 0.7);
+        }
+
+        .social-icons a.telegram {
+            color: #0088cc;
+            border-color: #0088cc;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.3);
+        }
+
+        .social-icons a.telegram:hover {
+            background: #0088cc;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(0, 136, 204, 0.7);
+        }
+
+        .social-icons a.whatsapp {
+            color: #25D366;
+            border-color: #25D366;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .social-icons a.whatsapp:hover {
+            background: #25D366;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+        }
+
+        /* ============================================
+           CONTAINER DO IFRAME
+           ============================================ */
+        #iframe-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 9999;
+            background: #000;
+        }
+
+        #login-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-iframe-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            border: 2px solid #ff0000;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            font-weight: bold;
+        }
+
+        .close-iframe-btn:hover {
+            background: #ff0000;
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           RESPONSIVIDADE MOBILE
+           ============================================ */
+        @media (max-width: 480px) {
+            .main-wrapper {
+                padding: 15px 10px;
+            }
+            
+            .content-container {
+                gap: 10px;
+            }
+            
+            .profile-name-3d {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+            
+            .login-intro-img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .btn-primary1, .btn-primary2 {
+                height: 50px;
+                font-size: 11px;
+            }
+            
+            .social-icons a {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .social-icons a i {
+                font-size: 24px;
+            }
+            
+            .whatsapp-plug-icon {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .whatsapp-plug-icon i {
+                font-size: 26px;
+            }
+            
+            .icon-small {
+                width: 60px;
+            }
+            
+            .large-icon {
+                width: 80px;
+            }
+
+            .menu-toggle {
+                width: 45px;
+                height: 45px;
+                top: 15px;
+                left: 15px;
+            }
+
+            .bar {
+                width: 24px;
+            }
+
+            .side-menu {
+                width: 260px;
+            }
+
+            .menu-items li a {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .plan-card {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .plan-btn {
+                width: 100%;
+                text-align: center;
+                margin-left: 0;
+            }
+
+            .plan-price {
+                align-items: flex-start;
+                width: 100%;
+                flex-direction: row;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .plan-card.recommended::before {
+                font-size: 8px;
+                top: -8px;
+                right: 10px;
+                padding: 1px 10px;
+            }
+
+            .plan-logo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .admin-table {
+                font-size: 11px;
+            }
+
+            .admin-table th, .admin-table td {
+                padding: 5px 3px;
+            }
+
+            .admin-btn-approve, .admin-btn-delete {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- MENU HAMBÚRGUER (3 TRAÇOS) -->
+    <div class="menu-container">
+        <div class="menu-toggle" id="menuToggle">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        
+        <div class="side-menu" id="sideMenu">
+            <ul class="menu-items">
+                <li><a href="#" id="menuHome"><i class="fas fa-home"></i> Início</a></li>
+                <li class="menu-item-hidden" id="menuPerfilLi"><a href="#" id="menuPerfil"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                <li><a href="#" id="menuAdmin"><i class="fas fa-user-shield"></i> Painel ADM</a></li>
+                <li><a href="#" id="menuTelegramChat"><i class="fab fa-telegram-plane"></i> Chat ACG</a></li>
+                <li><a href="#" id="menuTelegramChannel"><i class="fab fa-telegram"></i> Canal ACG</a></li>
+                <li><a href="#" id="menuBlaze"><i class="fas fa-fire"></i> Blaze / Sinais</a></li>
+                <li><a href="#" id="menuJonbet"><i class="fas fa-dice"></i> Jonbet</a></li>
+                <li><a href="#" id="menuSuporte"><i class="fas fa-headset"></i> Suporte 24h</a></li>
+                <li class="menu-item-hidden" id="menuSairLi"><a href="#" id="menuSair"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+            <div class="menu-version">
+                <i class="fas fa-shield-alt"></i> Versão 2.0 | Acesso Exclusivo
+            </div>
+        </div>
+    </div>
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- Botão flutuante WhatsApp com ícone -->
+    <a target="_blank" class="whatsapp-plug-icon" href="https://wa.me/5562998136026?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es!">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
+    <!-- Fundo com múltiplas camadas -->
+    <div class="background-wrapper">
+        <div class="video-background"></div>
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-wrapper">
+        <div class="content-container">
+            
+            <!-- Nome em 3D -->
+            <div class="profile-name-3d">ACG WHITE</div>
+            
+            <!-- Foto de perfil -->
+            <img class="login-intro-img" src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" onerror="this.src='https://via.placeholder.com/150/000000/00ff00?text=ACG'">
+            
+            <!-- FORMULÁRIO DE LOGIN/CADASTRO -->
+            <div class="register-form">
+                <div id="loading-message">⏳ Processando...</div>
+                <div id="error-message" class="error-message"></div>
+                <div id="success-message" class="success-message"></div>
+
+                <!-- FORMULÁRIO DE LOGIN -->
+                <div id="login-form">
+                    <h3 class="form-title">🔐 FAZER LOGIN</h3>
+                    <div class="form-group">
+                        <input type="email" id="loginEmail" placeholder="📧 E-mail" class="form-control" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="🔑 Senha" class="form-control" autocomplete="current-password">
+                    </div>
+                    <button class="btn-login" id="btnLogin">Entrar</button>
+                    
+                    <div class="form-divider">ou</div>
+                    
+                    <button class="btn-toggle-form" id="btnShowRegister">📝 Criar nova conta</button>
+                </div>
+
+                <!-- FORMULÁRIO DE CADASTRO -->
+                <div id="register-form" class="hidden-form">
+                    <h3 class="form-title">📝 CRIAR CONTA</h3>
+                    <div class="form-group">
+                        <input type="text" id="registerName" placeholder="👤 Nome completo" class="form-control" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" placeholder="📧 E-mail" class="form-control" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" placeholder="🔑 Senha (mínimo 6 caracteres)" class="form-control" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerConfirmPassword" placeholder="🔑 Confirmar senha" class="form-control" autocomplete="new-password">
+                    </div>
+                    <button class="btn-register" id="btnRegister">Criar conta</button>
+                    
+                    <div class="form-divider">ou</div>
+                    
+                    <button class="btn-toggle-form" id="btnShowLogin">🔐 Já tenho conta</button>
+                </div>
+            </div>
+            
+            <!-- BOTÕES DAS PLATAFORMAS -->
+            <div id="platform-buttons" style="width:100%;">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn-primary1" id="btnBlaze">
+                            <img src="https://blaze.bet.br/images/logo.svg" alt="Blaze" class="icon-small logo-original" onerror="this.src='https://blaze1.space/static/media/logo.cf45d2ad.svg'">
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button class="btn-primary2" id="btnJonbet">
+                            <img src="https://jon.bet/static/media/logo.3af9f796.svg" alt="Jonbet" class="large-icon logo-original">
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PLANOS DE ASSINATURA (SEMPRE VISÍVEIS) -->
+            <div id="plans-section" class="plans-section">
+                <h3 class="plans-title">📋 ESCOLHA SEU PLANO</h3>
+                <div class="plans-grid">
+                    <!-- Plano Semanal -->
+                    <div class="plan-card" data-plan="semanal">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-week"></i> Plano Semanal</span>
+                            <span class="plan-detail">✅ 7 dias de acesso • Sinais diários</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 19,99</span>
+                            <span class="price-label">/ semana</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://mpago.la/2f13qgu?plan=semanal">Assinar</button>
+                    </div>
+
+                    <!-- Plano Mensal (Recomendado) -->
+                    <div class="plan-card recommended" data-plan="mensal">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-alt"></i> Plano Mensal</span>
+                            <span class="plan-detail">✅ 30 dias de acesso • Melhor custo-benefício</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 56,99</span>
+                            <span class="price-old">R$ 157,99</span>
+                            <span class="price-label">/ mês</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://mpago.la/2f13qgu?plan=mensal">Assinar</button>
+                    </div>
+
+                    <!-- Plano Anual -->
+                    <div class="plan-card" data-plan="anual">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-check"></i> Plano Anual</span>
+                            <span class="plan-detail">✅ 365 dias de acesso • Economia garantida</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 299,99</span>
+                            <span class="price-old">R$ 899,99</span>
+                            <span class="price-label">/ ano</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://mpago.la/2f13qgu?plan=anual">Assinar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAINEL ADMINISTRATIVO -->
+            <div class="admin-panel" id="adminPanel">
+                <h3 class="admin-title">👑 PAINEL ADMINISTRATIVO</h3>
+                
+                <!-- Login ADM -->
+                <div id="adminLoginForm">
+                    <div class="form-group">
+                        <input type="email" id="adminEmail" placeholder="📧 E-mail ADM" class="form-control" value="gugurellson.firme@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="adminPassword" placeholder="🔑 Senha ADM" class="form-control" value="acg12111211">
+                    </div>
+                    <button class="btn-admin-login" id="btnAdminLogin">🔐 Entrar no Painel</button>
+                </div>
+
+                <!-- Conteúdo ADM -->
+                <div id="adminContent" style="display:none;">
+                    <div class="admin-stats">
+                        <span>Total: <span id="adminTotal">0</span> usuários</span>
+                        <span>Pendentes: <span id="adminPending">0</span></span>
+                        <span>Aprovados: <span id="adminApproved">0</span></span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                                <tr><td colspan="4" class="admin-empty">Nenhum usuário cadastrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="admin-logout" id="btnAdminLogout">🚪 Sair do Painel</button>
+                </div>
+            </div>
+            
+            <!-- Redes sociais -->
+            <div class="social-icons">
+                <a href="https://www.instagram.com/aindarells?igsh=eG43MTAxb3Q4cDhh" target="_blank" class="instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://t.me/acgwhitevip" target="_blank" class="telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                </a>
+                <a href="https://wa.me/5562998136026" target="_blank" class="whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container do iframe -->
+    <div id="iframe-container">
+        <iframe id="login-iframe" src=""></iframe>
+        <button id="close-iframe" class="close-iframe-btn">✕ Fechar</button>
+    </div>
+
+    <script>
+        // ============================================
+        // SISTEMA DE LOGIN, CADASTRO E PAINEL ADM
+        // ============================================
+
+        // ============================================
+        // CREDENCIAIS DO ADMIN
+        // ============================================
+        const ADMIN_EMAIL = 'gugurellson.firme@gmail.com';
+        const ADMIN_PASSWORD = 'acg12111211';
+
+        // ============================================
+        // ELEMENTOS
+        // ============================================
+
+        // Login/Cadastro
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const btnShowRegister = document.getElementById('btnShowRegister');
+        const btnShowLogin = document.getElementById('btnShowLogin');
+        const btnLogin = document.getElementById('btnLogin');
+        const btnRegister = document.getElementById('btnRegister');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerName = document.getElementById('registerName');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        // Admin
+        const adminPanel = document.getElementById('adminPanel');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminContent = document.getElementById('adminContent');
+        const btnAdminLogin = document.getElementById('btnAdminLogin');
+        const btnAdminLogout = document.getElementById('btnAdminLogout');
+        const adminEmail = document.getElementById('adminEmail');
+        const adminPassword = document.getElementById('adminPassword');
+        const adminTableBody = document.getElementById('adminTableBody');
+        const adminTotal = document.getElementById('adminTotal');
+        const adminPending = document.getElementById('adminPending');
+        const adminApproved = document.getElementById('adminApproved');
+
+        // Menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuHome = document.getElementById('menuHome');
+        const menuPerfil = document.getElementById('menuPerfil');
+        const menuPerfilLi = document.getElementById('menuPerfilLi');
+        const menuAdmin = document.getElementById('menuAdmin');
+        const menuTelegramChat = document.getElementById('menuTelegramChat');
+        const menuTelegramChannel = document.getElementById('menuTelegramChannel');
+        const menuBlaze = document.getElementById('menuBlaze');
+        const menuJonbet = document.getElementById('menuJonbet');
+        const menuSuporte = document.getElementById('menuSuporte');
+        const menuSair = document.getElementById('menuSair');
+        const menuSairLi = document.getElementById('menuSairLi');
+
+        const URL_JONBET = 'https://jonbet.com/pt/';
+        const URL_BLAZE = 'https://blaze.bet.br/';
+
+        // ============================================
+        // FUNÇÕES DE MENSAGENS
+        // ============================================
+
+        function showLoading(text = '⏳ Processando...') {
+            loadingMessage.style.display = 'block';
+            loadingMessage.textContent = text;
+        }
+
+        function hideLoading() {
+            loadingMessage.style.display = 'none';
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            setTimeout(() => errorMessage.style.display = 'none', 4000);
+        }
+
+        function showSuccess(msg) {
+            successMessage.textContent = msg;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            setTimeout(() => successMessage.style.display = 'none', 4000);
+        }
+
+        // ============================================
+        // FUNÇÕES DE LOCALSTORAGE (Usuários)
+        // ============================================
+
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem('acg_white_users')) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('acg_white_users', JSON.stringify(users));
+        }
+
+        function getLoggedUser() {
+            try {
+                return JSON.parse(localStorage.getItem('acg_white_logged'));
+            } catch {
+                return null;
+            }
+        }
+
+        function setLoggedUser(user) {
+            localStorage.setItem('acg_white_logged', JSON.stringify(user));
+        }
+
+        function clearLoggedUser() {
+            localStorage.removeItem('acg_white_logged');
+        }
+
+        function isAdminLogged() {
+            return localStorage.getItem('acg_white_admin') === 'true';
+        }
+
+        function setAdminLogged(value) {
+            localStorage.setItem('acg_white_admin', value ? 'true' : 'false');
+        }
+
+        // ============================================
+        // FUNÇÕES DE AUTENTICAÇÃO
+        // ============================================
+
+        function handleLogin() {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (!email || !password) {
+                showError('❌ Preencha todos os campos!');
+                return;
+            }
+
+            showLoading('🔐 Verificando credenciais...');
+
+            setTimeout(() => {
+                const users = getUsers();
+                const user = users.find(u => u.email === email && u.password === password && u.status === 'approved');
+
+                if (user) {
+                    hideLoading();
+                    setLoggedUser({ name: user.name, email: user.email });
+                    showSuccess('✅ Login realizado com sucesso!');
+                    afterLogin(user.name);
+                } else {
+                    const pendingUser = users.find(u => u.email === email && u.password === password && u.status === 'pending');
+                    if (pendingUser) {
+                        hideLoading();
+                        showError('⏳ Seu cadastro aguarda aprovação do administrador!');
+                    } else {
+                        hideLoading();
+                        showError('❌ E-mail ou senha incorretos!');
+                    }
+                }
+            }, 800);
+        }
+
+        function handleRegister() {
+            const name = registerName.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            const confirm = registerConfirmPassword.value.trim();
+
+            if (!name || !email || !password || !confirm) {
+                showError('❌ Preencha todos os campos!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('❌ A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+
+            if (password !== confirm) {
+                showError('❌ As senhas não coincidem!');
+                return;
+            }
+
+            showLoading('📝 Criando sua conta...');
+
+            setTimeout(() => {
+                const users = getUsers();
+                
+                if (users.some(u => u.email === email)) {
+                    hideLoading();
+                    showError('❌ Este e-mail já está cadastrado!');
+                    return;
+                }
+
+                users.push({ 
+                    name, 
+                    email, 
+                    password,
+                    status: 'pending',
+                    createdAt: new Date().toLocaleString()
+                });
+                saveUsers(users);
+                
+                hideLoading();
+                showSuccess('✅ Conta criada! Aguarde aprovação do administrador.');
+                
+                registerName.value = '';
+                registerEmail.value = '';
+                registerPassword.value = '';
+                registerConfirmPassword.value = '';
+                toggleForms('login');
+            }, 800);
+        }
+
+        function afterLogin(userName) {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'none';
+            
+            // Mostrar opções no menu
+            menuPerfilLi.classList.remove('menu-item-hidden');
+            menuSairLi.classList.remove('menu-item-hidden');
+            
+            // Atualizar nome no menu
+            menuPerfil.innerHTML = `<i class="fas fa-user"></i> ${userName}`;
+        }
+
+        function afterLogout() {
+            // Esconder opções do menu
+            menuPerfilLi.classList.add('menu-item-hidden');
+            menuSairLi.classList.add('menu-item-hidden');
+            
+            // Restaurar nome do menu
+            menuPerfil.innerHTML = `<i class="fas fa-user"></i> Meu Perfil`;
+        }
+
+        function toggleForms(form) {
+            if (form === 'register') {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // ============================================
+        // PAINEL ADMINISTRATIVO
+        // ============================================
+
+        function renderAdminPanel() {
+            const users = getUsers();
+            const pendingUsers = users.filter(u => u.status === 'pending');
+            const approvedUsers = users.filter(u => u.status === 'approved');
+
+            adminTotal.textContent = users.length;
+            adminPending.textContent = pendingUsers.length;
+            adminApproved.textContent = approvedUsers.length;
+
+            if (users.length === 0) {
+                adminTableBody.innerHTML = '<tr><td colspan="4" class="admin-empty">Nenhum usuário cadastrado</td></tr>';
+                return;
+            }
+
+            adminTableBody.innerHTML = users.map((user, index) => `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td class="${user.status === 'pending' ? 'status-pending' : 'status-approved'}">
+                        ${user.status === 'pending' ? '⏳ Pendente' : '✅ Aprovado'}
+                    </td>
+                    <td>
+                        ${user.status === 'pending' ? 
+                            `<button class="admin-btn-approve" onclick="approveUser(${index})">Aprovar</button>` : 
+                            `<button class="admin-btn-delete" onclick="deleteUser(${index})">Excluir</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.approveUser = function(index) {
+            const users = getUsers();
+            if (users[index]) {
+                users[index].status = 'approved';
+                saveUsers(users);
+                renderAdminPanel();
+                showSuccess('✅ Usuário aprovado com sucesso!');
+            }
+        };
+
+        window.deleteUser = function(index) {
+            if (confirm('⚠️ Tem certeza que deseja excluir este usuário?')) {
+                const users = getUsers();
+                users.splice(index, 1);
+                saveUsers(users);
+                renderAdminPanel();
+                showSuccess('🗑️ Usuário removido!');
+            }
+        };
+
+        function handleAdminLogin() {
+            const email = adminEmail.value.trim();
+            const password = adminPassword.value.trim();
+
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                setAdminLogged(true);
+                adminLoginForm.style.display = 'none';
+                adminContent.style.display = 'block';
+                renderAdminPanel();
+                showSuccess('👑 Bem-vindo ao Painel ADM!');
+            } else {
+                showError('❌ Credenciais de administrador inválidas!');
+            }
+        }
+
+        function handleAdminLogout() {
+            if (confirm('⚠️ Sair do painel administrativo?')) {
+                setAdminLogged(false);
+                adminLoginForm.style.display = 'block';
+                adminContent.style.display = 'none';
+                showSuccess('🚪 Saiu do painel ADM.');
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DO MENU
+        // ============================================
+
+        function toggleMenu() {
+            sideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        // Menu - toggle com clique
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Fechar menu ao clicar no overlay
+        menuOverlay.addEventListener('click', closeMenu);
+
+        // Fechar menu ao clicar fora 
+        document.addEventListener('click', function(e) {
+            if (sideMenu.classList.contains('open')) {
+                const isMenuClick = sideMenu.contains(e.target) || menuToggle.contains(e.target);
+                if (!isMenuClick) {
+                    closeMenu();
+                }
+            }
+        });
+
+        // Itens do menu
+        menuHome.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        menuPerfil.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (user) {
+                alert(`👤 Perfil: ${user.name}\n📧 E-mail: ${user.email}\n🎖️ Plano: VIP Exclusivo`);
+            } else {
+                alert('👤 Faça login para ver seu perfil');
+            }
+        });
+
+        menuAdmin.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            adminPanel.classList.toggle('active');
+            if (adminPanel.classList.contains('active')) {
+                if (isAdminLogged()) {
+                    adminLoginForm.style.display = 'none';
+                    adminContent.style.display = 'block';
+                    renderAdminPanel();
+                } else {
+                    adminLoginForm.style.display = 'block';
+                    adminContent.style.display = 'none';
+                }
+                adminPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        menuTelegramChat.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            window.open('https://t.me/acgwhitevip', '_blank');
+        });
+
+        menuTelegramChannel.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            window.open('https://t.me/acgwhite', '_blank');
+        });
+
+        menuBlaze.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            openIframe(URL_BLAZE);
+        });
+
+        menuJonbet.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            openIframe(URL_JONBET);
+        });
+
+        menuSuporte.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            window.open('https://wa.me/5562998136026', '_blank');
+        });
+
+        menuSair.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            if (confirm('⚠️ Tem certeza que deseja sair?')) {
+                clearLoggedUser();
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginEmail.value = '';
+                loginPassword.value = '';
+                afterLogout();
+                showSuccess('🚪 Você saiu do sistema.');
+            }
+        });
+
+        // Login e Cadastro
+        btnLogin.addEventListener('click', handleLogin);
+        btnRegister.addEventListener('click', handleRegister);
+
+        btnShowRegister.addEventListener('click', function() {
+            toggleForms('register');
+        });
+
+        btnShowLogin.addEventListener('click', function() {
+            toggleForms('login');
+        });
+
+        // Admin
+        btnAdminLogin.addEventListener('click', handleAdminLogin);
+        btnAdminLogout.addEventListener('click', handleAdminLogout);
+
+        // Enter key
+        loginPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') btnLogin.click();
+        });
+
+        registerConfirmPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') btnRegister.click();
+        });
+
+        adminPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') btnAdminLogin.click();
+        });
+
+        // ============================================
+        // FUNÇÕES DO IFRAME
+        // ============================================
+
+        const iframeContainer = document.getElementById('iframe-container');
+        const loginIframe = document.getElementById('login-iframe');
+        const closeIframeBtn = document.getElementById('close-iframe');
+
+        function openIframe(url) {
+            if (!url) return;
+            loginIframe.src = url;
+            iframeContainer.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeIframe() {
+            iframeContainer.style.display = 'none';
+            loginIframe.src = '';
+            document.body.style.overflow = '';
+        }
+
+        closeIframeBtn.addEventListener('click', closeIframe);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && iframeContainer.style.display === 'block') closeIframe();
+        });
+        iframeContainer.addEventListener('click', (e) => {
+            if (e.target === iframeContainer) closeIframe();
+        });
+
+        // ============================================
+        // BOTÕES DAS PLATAFORMAS
+        // ============================================
+
+        document.getElementById('btnBlaze').addEventListener('click', function(e) {
+            e.preventDefault();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            openIframe(URL_BLAZE);
+        });
+
+        document.getElementById('btnJonbet').addEventListener('click', function(e) {
+            e.preventDefault();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            openIframe(URL_JONBET);
+        });
+
+        // ============================================
+        // PLANOS DE ASSINATURA (SEMPRE VISÍVEIS)
+        // ============================================
+
+        document.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const user = getLoggedUser();
+                if (!user) {
+                    showError('❌ Faça login para assinar um plano!');
+                    return;
+                }
+                const href = this.getAttribute('data-href');
+                if (href) window.open(href, '_blank');
+            });
+        });
+
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const btn = this.querySelector('.plan-btn');
+                if (btn) btn.click();
+            });
+        });
+
+        // ============================================
+        // VERIFICAR SESSÃO AO CARREGAR
+        // ============================================
+
+        (function checkSession() {
+            const user = getLoggedUser();
+            if (user) {
+                afterLogin(user.name);
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'none';
+            } else {
+                afterLogout();
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
+
+            if (isAdminLogged()) {
+                adminLoginForm.style.display = 'none';
+                adminContent.style.display = 'block';
+                renderAdminPanel();
+            }
+        })();
+
+        console.log('✅ Sistema de login/cadastro com painel ADM ativado!');
+    </script>
+</body>
+</html>
