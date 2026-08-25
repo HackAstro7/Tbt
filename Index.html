@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACG WHITE | Sistema Seguro v3.0</title>
+    
+    <!-- ============================================
+    CSP - Content Security Policy (Segurança Máxima)
+    ============================================ -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https:;
+        script-src 'self' 'unsafe-inline' https:;
+        style-src 'self' 'unsafe-inline' https:;
+        img-src 'self' data: https:;
+        font-src 'self' https:;
+        connect-src 'self' https://api.ipify.org https:;
+        frame-src 'self' https://blaze.bet.br https://jonbet.com https://p.eduzz.com;
+        upgrade-insecure-requests;
+        block-all-mixed-content;
+    ">
+    
+    <!-- HSTS - Forçar HTTPS -->
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- ============================================
+    CRIPTOGRAFIA - CryptoJS para AES e SHA-256
+    ============================================ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <style>
+        /* ============================================
+           PROTEÇÃO - BLOQUEAR SELEÇÃO/INSPEÇÃO
+           ============================================ */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* ============================================
+           IMPORTAÇÃO DE FONTES
+           ============================================ */
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1+Code&family=Roboto:wght@400;700;900&display=swap');
+
+        /* ============================================
+           RESET E CONFIGURAÇÕES GLOBAIS
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #000000 !important;
+        }
+
+        /* ============================================
+           BLOQUEAR TELA DE INSPEÇÃO
+           ============================================ */
+        #block-inspect {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.98);
+            z-index: 99999;
+            color: #ff0000;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #block-inspect.active {
+            display: flex;
+        }
+        #block-inspect i {
+            font-size: 80px;
+            color: #ff0000;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ============================================
+           TIMER DE ACESSO GRÁTIS
+           ============================================ */
+        #free-timer-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99998;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.3);
+        }
+
+        #free-timer-container.active {
+            display: block;
+        }
+
+        #free-timer-container .timer-icon {
+            font-size: 60px;
+            color: #ffd700;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        #free-timer-container h2 {
+            color: #ffd700;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        #free-timer-container p {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        #free-timer-container .timer-display {
+            font-size: 48px;
+            font-weight: 900;
+            color: #00ff00;
+            font-family: 'Roboto', sans-serif;
+            text-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            margin: 10px 0;
+        }
+
+        #free-timer-container .timer-display.warning {
+            color: #ff6b00;
+            text-shadow: 0 0 30px rgba(255, 107, 0, 0.5);
+            animation: blink 1s infinite;
+        }
+
+        #free-timer-container .timer-display.danger {
+            color: #ff0000;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #free-timer-container .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        #free-timer-container .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffd700, #ff0000);
+            border-radius: 3px;
+            transition: width 1s linear;
+            width: 100%;
+        }
+
+        #free-timer-container .btn-assinar {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            color: #000;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        #free-timer-container .btn-assinar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        #free-timer-container .btn-fechar {
+            background: rgba(255, 255, 255, 0.05);
+            color: #666;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        #free-timer-container .btn-fechar:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* ============================================
+           OVERLAY DO TIMER
+           ============================================ */
+        #timer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 99997;
+            backdrop-filter: blur(10px);
+        }
+
+        #timer-overlay.active {
+            display: block;
+        }
+
+        /* ============================================
+           MENU HAMBÚRGUER
+           ============================================ */
+        .menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10000;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            z-index: 10002;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .menu-toggle:hover {
+            background: #00ff00;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .menu-toggle:hover .bar {
+            background: #000;
+        }
+
+        .bar {
+            width: 28px;
+            height: 3px;
+            background: #00ff00;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .menu-toggle.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+            background: #ff0000;
+        }
+
+        .menu-toggle.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+            background: #ff0000;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(15px);
+            border-right: 2px solid #00ff00;
+            z-index: 10001;
+            transition: left 0.4s ease;
+            padding-top: 80px;
+            box-shadow: 5px 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-items li {
+            margin: 5px 20px;
+        }
+
+        .menu-items li a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .menu-items li a i {
+            width: 25px;
+            font-size: 20px;
+            color: #00ff00;
+        }
+
+        .menu-items li a:hover {
+            background: rgba(0, 255, 0, 0.15);
+            border-color: #00ff00;
+            transform: translateX(10px);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .menu-version {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            padding: 15px;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            margin: 0 20px;
+        }
+
+        .menu-item-hidden {
+            display: none !important;
+        }
+
+        /* ============================================
+           FUNDO
+           ============================================ */
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            background-image: url('https://lh7-us.googleusercontent.com/_n83iARHxwdrut8_mLMYQzYn93AmzA-8TVwOZ5k7tjVwigoSQzBwfWPu9BOcDkA_AgKAplhjzXhc9WQCwfmuFTJ6vI1010VVnSMJqhgUCX3zu9gaN1mi6wL17UDn4UsXh43_OxrE5juATBM-9CCCB0A');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0a0a0a;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        /* ============================================
+           BOTÃO WHATSAPP
+           ============================================ */
+        .whatsapp-plug-icon {
+            position: fixed;
+            z-index: 1000;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            background-color: #25D366;
+            transition: .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.5);
+            text-decoration: none;
+        }
+
+        .whatsapp-plug-icon i {
+            font-size: 32px;
+            color: #fff;
+        }
+
+        .whatsapp-plug-icon:hover {
+            background-color: #128C7E;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.8);
+        }
+
+        .whatsapp-plug-icon::after, .whatsapp-plug-icon::before {
+            content: '';
+            position: absolute;
+            opacity: 0;
+            border: 4px solid #25D366;
+            left: -10px;
+            top: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            animation: WaveWhatsApp 1.5s ease infinite;
+        }
+
+        .whatsapp-plug-icon::after {
+            animation-delay: .5s;
+        }
+
+        @keyframes WaveWhatsApp {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        /* ============================================
+           CONTAINER PRINCIPAL
+           ============================================ */
+        .main-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            z-index: 1;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* ============================================
+           NOME 3D
+           ============================================ */
+        .profile-name-3d {
+            display: inline-block;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 4px;
+            color: #00ff00;
+            text-shadow: 
+                0 1px 0 #00cc00,
+                0 2px 0 #009900,
+                0 3px 0 #006600,
+                0 4px 0 #004400,
+                0 5px 0 #002200,
+                0 6px 0 #001100,
+                0 7px 0 #000000,
+                0 8px 5px rgba(0,0,0,0.5),
+                0 12px 10px rgba(0,0,0,0.3),
+                0 15px 15px rgba(0,0,0,0.2),
+                0 0 20px #00ff00,
+                0 0 40px #00ff00,
+                0 0 60px #00ff00;
+            animation: rotate3dAdvanced 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes rotate3dAdvanced {
+            0% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+            25% { transform: rotateY(20deg) rotateX(8deg) translateZ(20px); }
+            50% { transform: rotateY(0deg) rotateX(12deg) translateZ(30px); }
+            75% { transform: rotateY(-20deg) rotateX(8deg) translateZ(20px); }
+            100% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+        }
+
+        /* ============================================
+           IMAGEM DE PERFIL
+           ============================================ */
+        .login-intro-img {
+            width: 150px;
+            height: 150px;
+            margin: 5px auto;
+            display: block;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), 0 0 60px rgba(0, 255, 0, 0.2);
+            background: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .login-intro-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============================================
+           FORMULÁRIO
+           ============================================ */
+        .register-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #00ff37;
+            box-shadow: 0 0 20px rgba(0, 255, 55, 0.4);
+            background-color: rgba(0, 0, 0, 0.9);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-control:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ============================================
+           MENSAGENS
+           ============================================ */
+        #loading-message {
+            display: none;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #00ff00;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #ff0000;
+            font-size: 14px;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(0, 255, 0, 0.15);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #00ff00;
+            font-size: 14px;
+        }
+
+        /* ============================================
+           BOTÕES
+           ============================================ */
+        .btn-login, .btn-register, .btn-toggle-form {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-login {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-register {
+            background: linear-gradient(45deg, #ff6b00, #ff4400);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .btn-register:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-toggle-form {
+            background: rgba(255, 255, 255, 0.05);
+            color: #00ff00;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .btn-toggle-form:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-title {
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .hidden-form {
+            display: none;
+        }
+
+        /* ============================================
+           PLANOS DE ASSINATURA
+           ============================================ */
+        .plans-section {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .plans-title {
+            color: #fff;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .plans-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .plan-card {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .plan-card:hover {
+            transform: scale(1.02);
+            border-color: #00ff00;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
+        }
+
+        .plan-card.recommended {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            position: relative;
+        }
+
+        .plan-card.recommended::before {
+            content: '⭐ RECOMENDADO';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: #ffd700;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .plan-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .plan-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .plan-name i {
+            margin-right: 8px;
+            color: #00ff00;
+        }
+
+        .plan-detail {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        .plan-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ff00;
+            background: #000;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .plan-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .plan-price .price {
+            color: #00ff00;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .plan-price .price-old {
+            color: #ff4d4d;
+            font-size: 14px;
+            text-decoration: line-through;
+        }
+
+        .plan-price .price-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+
+        .plan-btn {
+            background: linear-gradient(45deg, #ff6b00, #ff4400);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            margin-left: 10px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .plan-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
+        }
+
+        .plan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .plan-card.recommended .plan-btn {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .plan-card.recommended .plan-btn:hover:not(:disabled) {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+
+        /* ============================================
+           PAINEL ADMINISTRATIVO
+           ============================================ */
+        .admin-panel {
+            display: none;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            backdrop-filter: blur(8px);
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-title {
+            color: #ffd700;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .admin-table {
+            width: 100%;
+            color: #fff;
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            color: #ffd700;
+            text-align: left;
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .admin-table td {
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-table .status-pending {
+            color: #ff6b6b;
+        }
+
+        .admin-table .status-approved {
+            color: #00ff00;
+        }
+
+        .admin-table .status-subscription {
+            color: #ffd700;
+        }
+
+        .admin-btn-approve {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-approve:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .admin-btn-delete {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-delete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        .admin-btn-subscription {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-subscription:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .admin-empty {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .admin-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .admin-login-form .form-control {
+            text-align: center;
+        }
+
+        .btn-admin-login {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-admin-login:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-admin-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .admin-logout {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #ff0000;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .admin-logout:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .admin-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .admin-stats span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* ============================================
+           REDES SOCIAIS
+           ============================================ */
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            border: 2px solid;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icons a i {
+            font-size: 30px;
+        }
+
+        .social-icons a.instagram {
+            color: #E1306C;
+            border-color: #E1306C;
+            box-shadow: 0 0 20px rgba(225, 48, 108, 0.3);
+        }
+
+        .social-icons a.instagram:hover {
+            background: #E1306C;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(225, 48, 108, 0.7);
+        }
+
+        .social-icons a.telegram {
+            color: #0088cc;
+            border-color: #0088cc;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.3);
+        }
+
+        .social-icons a.telegram:hover {
+            background: #0088cc;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(0, 136, 204, 0.7);
+        }
+
+        .social-icons a.whatsapp {
+            color: #25D366;
+            border-color: #25D366;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .social-icons a.whatsapp:hover {
+            background: #25D366;
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+        }
+
+        /* ============================================
+           CONTAINER DO IFRAME
+           ============================================ */
+        #iframe-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 9999;
+            background: #000;
+        }
+
+        #login-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-iframe-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            border: 2px solid #ff0000;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            font-weight: bold;
+        }
+
+        .close-iframe-btn:hover {
+            background: #ff0000;
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           RESPONSIVIDADE
+           ============================================ */
+        @media (max-width: 480px) {
+            .main-wrapper { padding: 15px 10px; }
+            .content-container { gap: 10px; }
+            .profile-name-3d { font-size: 1.8rem; letter-spacing: 2px; }
+            .login-intro-img { width: 120px; height: 120px; }
+            .social-icons a { width: 45px; height: 45px; }
+            .social-icons a i { font-size: 24px; }
+            .whatsapp-plug-icon { width: 50px; height: 50px; bottom: 15px; right: 15px; }
+            .whatsapp-plug-icon i { font-size: 26px; }
+            .menu-toggle { width: 45px; height: 45px; top: 15px; left: 15px; }
+            .bar { width: 24px; }
+            .side-menu { width: 260px; }
+            .menu-items li a { padding: 12px 15px; font-size: 14px; }
+            .plan-card { flex-wrap: wrap; gap: 10px; }
+            .plan-btn { width: 100%; text-align: center; margin-left: 0; font-size: 13px; padding: 10px; }
+            .plan-price { align-items: flex-start; width: 100%; flex-direction: row; gap: 10px; flex-wrap: wrap; }
+            .plan-card.recommended::before { font-size: 8px; top: -8px; right: 10px; padding: 1px 10px; }
+            .plan-logo { width: 40px; height: 40px; }
+            .admin-table { font-size: 11px; }
+            .admin-table th, .admin-table td { padding: 5px 3px; }
+            .admin-stats { font-size: 11px; }
+            #free-timer-container { padding: 30px 20px; }
+            #free-timer-container .timer-display { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    TELA DE BLOQUEIO DE INSPEÇÃO
+    ============================================ -->
+    <div id="block-inspect">
+        <i class="fas fa-shield-alt"></i>
+        <h1>🔒 ACESSO BLOQUEADO</h1>
+        <p style="color:#fff;font-size:16px;max-width:400px;">Ferramentas de desenvolvedor detectadas. Para sua segurança, o acesso foi bloqueado.</p>
+        <p style="color:#666;font-size:14px;margin-top:10px;">Código: SEC-001</p>
+        <p style="color:#666;font-size:12px;margin-top:5px;">Sistema protegido por ACG Security v3.0</p>
+    </div>
+
+    <!-- ============================================
+    TIMER DE ACESSO GRÁTIS (7 MINUTOS)
+    ============================================ -->
+    <div id="timer-overlay"></div>
+    <div id="free-timer-container">
+        <div class="timer-icon">⏳</div>
+        <h2>🆓 ACESSO GRÁTIS</h2>
+        <p>Você tem <strong style="color:#ffd700;">7 minutos</strong> para testar o sistema.<br>Após esse tempo, o acesso será bloqueado.</p>
+        <div class="timer-display" id="timerDisplay">07:00</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <button class="btn-assinar" id="btnAssinarAgora">💳 ASSINAR AGORA</button>
+        <button class="btn-fechar" id="btnFecharTimer">✕ Fechar</button>
+    </div>
+
+    <!-- MENU HAMBÚRGUER -->
+    <div class="menu-container">
+        <div class="menu-toggle" id="menuToggle">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        
+        <div class="side-menu" id="sideMenu">
+            <ul class="menu-items">
+                <li><a href="#" id="menuHome"><i class="fas fa-home"></i> Início</a></li>
+                <li class="menu-item-hidden" id="menuPerfilLi"><a href="#" id="menuPerfil"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                <li><a href="#" id="menuAdmin"><i class="fas fa-user-shield"></i> Painel ADM</a></li>
+                <li><a href="#" id="menuTelegramChat"><i class="fab fa-telegram-plane"></i> Chat ACG</a></li>
+                <li><a href="#" id="menuTelegramChannel"><i class="fab fa-telegram"></i> Canal ACG</a></li>
+                <li class="menu-item-hidden" id="menuSairLi"><a href="#" id="menuSair"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+            <div class="menu-version">
+                <i class="fas fa-shield-alt"></i> Versão 3.0 | Sistema Seguro
+            </div>
+        </div>
+    </div>
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- WhatsApp -->
+    <a target="_blank" class="whatsapp-plug-icon" href="https://wa.me/5562998136026?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es!">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
+    <!-- Fundo -->
+    <div class="background-wrapper">
+        <div class="video-background"></div>
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-wrapper">
+        <div class="content-container">
+            
+            <div class="profile-name-3d">ACG WHITE</div>
+            
+            <img class="login-intro-img" src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" onerror="this.src='https://via.placeholder.com/150/000000/00ff00?text=ACG'">
+            
+            <!-- FORMULÁRIO -->
+            <div class="register-form">
+                <div id="loading-message">⏳ Processando...</div>
+                <div id="error-message" class="error-message"></div>
+                <div id="success-message" class="success-message"></div>
+
+                <!-- LOGIN -->
+                <div id="login-form">
+                    <h3 class="form-title">🔐 FAZER LOGIN</h3>
+                    <div class="form-group">
+                        <input type="email" id="loginEmail" placeholder="📧 E-mail" class="form-control" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="🔑 Senha" class="form-control" autocomplete="current-password">
+                    </div>
+                    <button class="btn-login" id="btnLogin">Entrar</button>
+                    
+                    <div class="form-divider">ou</div>
+                    
+                    <button class="btn-toggle-form" id="btnShowRegister">📝 Criar nova conta</button>
+                </div>
+
+                <!-- CADASTRO -->
+                <div id="register-form" class="hidden-form">
+                    <h3 class="form-title">📝 CRIAR CONTA</h3>
+                    <div class="form-group">
+                        <input type="text" id="registerName" placeholder="👤 Nome completo" class="form-control" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" placeholder="📧 E-mail" class="form-control" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" placeholder="🔑 Senha (mínimo 6 caracteres)" class="form-control" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerConfirmPassword" placeholder="🔑 Confirmar senha" class="form-control" autocomplete="new-password">
+                    </div>
+                    <button class="btn-register" id="btnRegister">Criar conta</button>
+                    
+                    <div class="form-divider">ou</div>
+                    
+                    <button class="btn-toggle-form" id="btnShowLogin">🔐 Já tenho conta</button>
+                </div>
+            </div>
+            
+            <!-- BOTÃO TESTE GRÁTIS -->
+            <button class="btn-login" id="btnTesteGratis" style="background: linear-gradient(45deg, #ffd700, #ffb300); color: #000; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);">
+                🆕 TESTE GRÁTIS - 7 MINUTOS
+            </button>
+
+            <!-- PLANOS -->
+            <div id="plans-section" class="plans-section">
+                <h3 class="plans-title">📋 ESCOLHA SEU PLANO</h3>
+                <div class="plans-grid">
+                    <div class="plan-card" data-plan="semanal">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-week"></i> Plano Semanal</span>
+                            <span class="plan-detail">✅ 7 dias de acesso • Sinais diários</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 47,99</span>
+                            <span class="price-label">/ semana</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://p.eduzz.com/3094874">💳 COMPRAR AGORA</button>
+                    </div>
+
+                    <div class="plan-card recommended" data-plan="mensal">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-alt"></i> Plano Mensal</span>
+                            <span class="plan-detail">✅ 30 dias de acesso • Melhor custo-benefício</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 87,99</span>
+                            <span class="price-old">R$ 191,96</span>
+                            <span class="price-label">/ mês</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://p.eduzz.com/3094885">💳 COMPRAR AGORA</button>
+                    </div>
+
+                    <div class="plan-card" data-plan="anual">
+                        <img src="https://cdn.bio.link/uploads/profile_pictures/2026-08-21/yl8KQ6wn0B8JvgegUC9cAljHXx4u3Opv.png" alt="ACG WHITE" class="plan-logo" onerror="this.src='https://via.placeholder.com/50/000000/00ff00?text=ACG'">
+                        <div class="plan-info">
+                            <span class="plan-name"><i class="fas fa-calendar-check"></i> Plano Anual</span>
+                            <span class="plan-detail">✅ 365 dias de acesso • Economia garantida</span>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price">R$ 197,99</span>
+                            <span class="price-old">R$ 575,88</span>
+                            <span class="price-label">/ ano</span>
+                        </div>
+                        <button class="plan-btn" data-href="https://p.eduzz.com/3094888">💳 COMPRAR AGORA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAINEL ADMIN -->
+            <div class="admin-panel" id="adminPanel">
+                <h3 class="admin-title">👑 PAINEL ADMINISTRATIVO</h3>
+                
+                <div id="adminLoginForm">
+                    <div class="form-group">
+                        <input type="email" id="adminEmail" placeholder="📧 E-mail ADM" class="form-control" value="gugurellson.firme@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="adminPassword" placeholder="🔑 Senha ADM" class="form-control" value="acg12111211">
+                    </div>
+                    <button class="btn-admin-login" id="btnAdminLogin">🔐 Entrar no Painel</button>
+                </div>
+
+                <div id="adminContent" style="display:none;">
+                    <div class="admin-stats">
+                        <span>👥 Total: <span id="adminTotal">0</span></span>
+                        <span>⏳ Pendentes: <span id="adminPending">0</span></span>
+                        <span>✅ Aprovados: <span id="adminApproved">0</span></span>
+                        <span>📋 Assinaturas: <span id="adminSubscriptions">0</span></span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Status</th>
+                                    <th>Plano</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                                <tr><td colspan="5" class="admin-empty">Nenhum usuário cadastrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="admin-logout" id="btnAdminLogout">🚪 Sair do Painel</button>
+                </div>
+            </div>
+            
+            <!-- Redes sociais -->
+            <div class="social-icons">
+                <a href="https://www.instagram.com/aindarells?igsh=eG43MTAxb3Q4cDhh" target="_blank" class="instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://t.me/acgwhitevip" target="_blank" class="telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                </a>
+                <a href="https://wa.me/5562998136026" target="_blank" class="whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iframe -->
+    <div id="iframe-container">
+        <iframe id="login-iframe" src=""></iframe>
+        <button id="close-iframe" class="close-iframe-btn">✕ Fechar</button>
+    </div>
+
+    <script>
+        // ============================================
+        // PROTEÇÃO CONTRA INSPEÇÃO (NÍVEL MÁXIMO)
+        // ============================================
+        (function antiInspect() {
+            const block = document.getElementById('block-inspect');
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                    (e.ctrlKey && e.key === 'U') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'E') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'K')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    block.classList.add('active');
+                    return false;
+                }
+            });
+
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                block.classList.add('active');
+                return false;
+            });
+
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            const detectDevTools = () => {
+                const threshold = 150;
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+                
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    block.classList.add('active');
+                    return true;
+                }
+                return false;
+            };
+
+            let lastWidth = window.innerWidth;
+            let lastHeight = window.innerHeight;
+            
+            const checkInterval = setInterval(() => {
+                if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
+                    lastWidth = window.innerWidth;
+                    lastHeight = window.innerHeight;
+                    if (detectDevTools()) {
+                        clearInterval(checkInterval);
+                    }
+                }
+            }, 500);
+
+            try {
+                const element = new Image();
+                Object.defineProperty(element, 'id', {
+                    get: function() {
+                        block.classList.add('active');
+                        clearInterval(checkInterval);
+                        throw new Error('Bloqueado');
+                    }
+                });
+                console.log('%c', element);
+            } catch(e) {}
+
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            let lastUrl = window.location.href;
+            setInterval(() => {
+                if (window.location.href !== lastUrl) {
+                    lastUrl = window.location.href;
+                    if (window.location.href.includes('about:blank')) {
+                        block.classList.add('active');
+                    }
+                }
+            }, 1000);
+
+            console.log('🔒 Sistema Anti-Inspect ativado com sucesso!');
+        })();
+
+        // ============================================
+        // SISTEMA DE TIMER - 7 MINUTOS GRÁTIS
+        // ============================================
+        
+        const FREE_TIME = 7 * 60; // 7 minutos em segundos
+        let timerInterval = null;
+        let timeLeft = FREE_TIME;
+        let isTimerRunning = false;
+        let timerBlocked = false;
+
+        // Elementos do Timer
+        const timerContainer = document.getElementById('free-timer-container');
+        const timerOverlay = document.getElementById('timer-overlay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const btnAssinarAgora = document.getElementById('btnAssinarAgora');
+        const btnFecharTimer = document.getElementById('btnFecharTimer');
+        const btnTesteGratis = document.getElementById('btnTesteGratis');
+
+        // Função para formatar o tempo (MM:SS)
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Função para atualizar o display do timer
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+            
+            // Calcular progresso (0 a 100)
+            const progress = (timeLeft / FREE_TIME) * 100;
+            progressFill.style.width = progress + '%';
+            
+            // Mudar cor baseado no tempo restante
+            timerDisplay.className = 'timer-display';
+            if (timeLeft <= 60) {
+                timerDisplay.classList.add('danger');
+            } else if (timeLeft <= 180) {
+                timerDisplay.classList.add('warning');
+            }
+        }
+
+        // Função para bloquear o acesso (timer expirado)
+        function blockAccess() {
+            if (timerBlocked) return;
+            timerBlocked = true;
+            
+            timerDisplay.textContent = '⛔ BLOQUEADO';
+            timerDisplay.className = 'timer-display danger';
+            progressFill.style.width = '0%';
+            
+            // Esconder botão de fechar e mostrar apenas "Assinar Agora"
+            btnFecharTimer.style.display = 'none';
+            btnAssinarAgora.textContent = '🔓 DESBLOQUEAR ACESSO';
+            btnAssinarAgora.style.background = 'linear-gradient(45deg, #ff0000, #cc0000)';
+            btnAssinarAgora.style.color = '#fff';
+            
+            showError('⛔ Seu tempo grátis de 7 minutos acabou! Assine um plano para continuar.');
+            
+            // Redirecionar para a seção de planos
+            document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Função para iniciar o timer
+        function startFreeTimer() {
+            // Verificar se já tem timer ativo
+            if (isTimerRunning) return;
+            
+            // Verificar se já usou o teste grátis (armazenado no localStorage)
+            const hasUsedFreeTrial = localStorage.getItem('acg_white_free_trial_used');
+            if (hasUsedFreeTrial) {
+                showError('⛔ Você já utilizou seu teste grátis de 7 minutos!');
+                return;
+            }
+            
+            // Resetar o timer
+            timeLeft = FREE_TIME;
+            timerBlocked = false;
+            isTimerRunning = true;
+            
+            // Mostrar o timer
+            timerContainer.classList.add('active');
+            timerOverlay.classList.add('active');
+            
+            // Atualizar display
+            updateTimerDisplay();
+            
+            // Mostrar botão de fechar
+            btnFecharTimer.style.display = 'block';
+            btnAssinarAgora.textContent = '💳 ASSINAR AGORA';
+            btnAssinarAgora.style.background = 'linear-gradient(45deg, #ffd700, #ffb300)';
+            btnAssinarAgora.style.color = '#000';
+            
+            // Iniciar o timer
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    isTimerRunning = false;
+                    
+                    // Marcar que o teste grátis foi usado
+                    localStorage.setItem('acg_white_free_trial_used', 'true');
+                    
+                    blockAccess();
+                }
+            }, 1000);
+            
+            // Salvar no localStorage que o timer está ativo
+            localStorage.setItem('acg_white_timer_active', 'true');
+            localStorage.setItem('acg_white_timer_start', Date.now());
+            localStorage.setItem('acg_white_timer_timeleft', timeLeft);
+            
+            showSuccess('🆕 Teste grátis iniciado! Você tem 7 minutos.');
+        }
+
+        // Função para parar o timer (quando o usuário assina)
+        function stopFreeTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            isTimerRunning = false;
+            timerContainer.classList.remove('active');
+            timerOverlay.classList.remove('active');
+            
+            localStorage.removeItem('acg_white_timer_active');
+            localStorage.removeItem('acg_white_timer_start');
+            localStorage.removeItem('acg_white_timer_timeleft');
+        }
+
+        // Função para fechar o timer (apenas visualmente)
+        function closeTimer() {
+            if (timerInterval) {
+                // Se o timer ainda está rodando, não deixa fechar
+                if (timeLeft > 0 && !timerBlocked) {
+                    showError('⏳ Você ainda tem tempo de teste! O timer continuará rodando.');
+                    return;
+                }
+            }
+            timerContainer.classList.remove('active');
+            timerOverlay.classList.remove('active');
+        }
+
+        // ============================================
+        // EVENTOS DO TIMER
+        // ============================================
+
+        // Botão "Teste Grátis"
+        btnTesteGratis.addEventListener('click', function() {
+            // Verificar se o usuário está logado
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login ou crie uma conta para ativar o teste grátis!');
+                return;
+            }
+            
+            // Verificar se já tem assinatura ativa
+            if (user.subscription && user.subscription.active) {
+                showError('✅ Você já possui uma assinatura ativa!');
+                return;
+            }
+            
+            startFreeTimer();
+        });
+
+        // Botão "Assinar Agora" no timer
+        btnAssinarAgora.addEventListener('click', function() {
+            // Fechar o timer
+            stopFreeTimer();
+            // Rolar para a seção de planos
+            document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Destacar os planos
+            showSuccess('📋 Escolha seu plano e assine agora!');
+        });
+
+        // Botão "Fechar" do timer
+        btnFecharTimer.addEventListener('click', closeTimer);
+
+        // ============================================
+        // RECUPERAR TIMER AO RECARREGAR A PÁGINA
+        // ============================================
+
+        function recoverTimer() {
+            const timerActive = localStorage.getItem('acg_white_timer_active');
+            const timerStart = parseInt(localStorage.getItem('acg_white_timer_start')) || 0;
+            const savedTimeLeft = parseInt(localStorage.getItem('acg_white_timer_timeleft')) || 0;
+            
+            if (timerActive === 'true' && timerStart > 0) {
+                const elapsed = Math.floor((Date.now() - timerStart) / 1000);
+                const remaining = Math.max(0, savedTimeLeft - elapsed);
+                
+                if (remaining > 0) {
+                    timeLeft = remaining;
+                    isTimerRunning = true;
+                    timerBlocked = false;
+                    
+                    timerContainer.classList.add('active');
+                    timerOverlay.classList.add('active');
+                    updateTimerDisplay();
+                    
+                    // Continuar o timer
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        updateTimerDisplay();
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            timerInterval = null;
+                            isTimerRunning = false;
+                            localStorage.setItem('acg_white_free_trial_used', 'true');
+                            blockAccess();
+                        }
+                    }, 1000);
+                    
+                    showSuccess('⏳ Continuando seu teste grátis...');
+                } else {
+                    // Timer expirou
+                    localStorage.setItem('acg_white_free_trial_used', 'true');
+                    localStorage.removeItem('acg_white_timer_active');
+                    localStorage.removeItem('acg_white_timer_start');
+                    localStorage.removeItem('acg_white_timer_timeleft');
+                }
+            }
+        }
+
+        // ============================================
+        // CREDENCIAIS ADMIN
+        // ============================================
+        const ADMIN_EMAIL = 'gugurellson.firme@gmail.com';
+        const ADMIN_PASSWORD = 'acg12111211';
+        const ADMIN_TOKEN = 'ACG-ADM-2026-SECURE-V3';
+
+        // ============================================
+        // CONSTANTES DE SEGURANÇA
+        // ============================================
+        const SECRET_KEY = 'ACG_WHITE_2026_SUPER_SECRET_KEY';
+        const SALT = 'ACG_SALT_2026_v3';
+        const MAX_ATTEMPTS = 5;
+        const BLOCK_TIME = 15 * 60 * 1000;
+
+        // ============================================
+        // ELEMENTOS
+        // ============================================
+
+        // Login/Cadastro
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const btnShowRegister = document.getElementById('btnShowRegister');
+        const btnShowLogin = document.getElementById('btnShowLogin');
+        const btnLogin = document.getElementById('btnLogin');
+        const btnRegister = document.getElementById('btnRegister');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerName = document.getElementById('registerName');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        // Admin
+        const adminPanel = document.getElementById('adminPanel');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminContent = document.getElementById('adminContent');
+        const btnAdminLogin = document.getElementById('btnAdminLogin');
+        const btnAdminLogout = document.getElementById('btnAdminLogout');
+        const adminEmail = document.getElementById('adminEmail');
+        const adminPassword = document.getElementById('adminPassword');
+        const adminTableBody = document.getElementById('adminTableBody');
+        const adminTotal = document.getElementById('adminTotal');
+        const adminPending = document.getElementById('adminPending');
+        const adminApproved = document.getElementById('adminApproved');
+        const adminSubscriptions = document.getElementById('adminSubscriptions');
+
+        // Menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuHome = document.getElementById('menuHome');
+        const menuPerfil = document.getElementById('menuPerfil');
+        const menuPerfilLi = document.getElementById('menuPerfilLi');
+        const menuAdmin = document.getElementById('menuAdmin');
+        const menuTelegramChat = document.getElementById('menuTelegramChat');
+        const menuTelegramChannel = document.getElementById('menuTelegramChannel');
+        const menuSair = document.getElementById('menuSair');
+        const menuSairLi = document.getElementById('menuSairLi');
+
+        // ============================================
+        // FUNÇÕES DE CRIPTOGRAFIA
+        // ============================================
+
+        function hashPassword(password) {
+            return CryptoJS.SHA256(password + SALT).toString();
+        }
+
+        function encryptData(data) {
+            return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+        }
+
+        function decryptData(encrypted) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
+                return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            } catch {
+                return null;
+            }
+        }
+
+        function verifyHash(password, hash) {
+            return hashPassword(password) === hash;
+        }
+
+        // ============================================
+        // SISTEMA DE IP REAL
+        // ============================================
+
+        let realIP = null;
+
+        function getRealIP() {
+            return new Promise((resolve) => {
+                if (realIP) {
+                    resolve(realIP);
+                    return;
+                }
+                
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        realIP = data.ip;
+                        resolve(realIP);
+                    })
+                    .catch(() => {
+                        const storedIP = localStorage.getItem('user_ip_fallback');
+                        if (storedIP) {
+                            realIP = storedIP;
+                            resolve(realIP);
+                        } else {
+                            const fallbackIP = 'ip_' + Math.random().toString(36).substring(2, 10);
+                            localStorage.setItem('user_ip_fallback', fallbackIP);
+                            realIP = fallbackIP;
+                            resolve(realIP);
+                        }
+                    });
+            });
+        }
+
+        // ============================================
+        // SISTEMA DE BLOQUEIO POR IP
+        // ============================================
+
+        async function getLoginAttempts() {
+            const ip = await getRealIP();
+            const key = `login_attempts_${ip}`;
+            return parseInt(localStorage.getItem(key)) || 0;
+        }
+
+        async function incrementLoginAttempts() {
+            const ip = await getRealIP();
+            const key = `login_attempts_${ip}`;
+            const attempts = (await getLoginAttempts()) + 1;
+            localStorage.setItem(key, attempts);
+            localStorage.setItem(`${key}_time`, Date.now());
+            return attempts;
+        }
+
+        async function resetLoginAttempts() {
+            const ip = await getRealIP();
+            const key = `login_attempts_${ip}`;
+            localStorage.removeItem(key);
+            localStorage.removeItem(`${key}_time`);
+        }
+
+        async function isIPBlocked() {
+            const ip = await getRealIP();
+            const key = `login_attempts_${ip}`;
+            const attempts = parseInt(localStorage.getItem(key)) || 0;
+            const timeKey = `${key}_time`;
+            const lastAttempt = parseInt(localStorage.getItem(timeKey)) || 0;
+
+            if (attempts >= MAX_ATTEMPTS) {
+                if (Date.now() - lastAttempt < BLOCK_TIME) {
+                    return true;
+                } else {
+                    await resetLoginAttempts();
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        async function getBlockTimeLeft() {
+            const ip = await getRealIP();
+            const key = `login_attempts_${ip}`;
+            const timeKey = `${key}_time`;
+            const lastAttempt = parseInt(localStorage.getItem(timeKey)) || 0;
+            const remaining = BLOCK_TIME - (Date.now() - lastAttempt);
+            return Math.max(0, Math.ceil(remaining / 60000));
+        }
+
+        // ============================================
+        // SISTEMA DE TOKEN
+        // ============================================
+
+        function generateToken(user) {
+            const payload = {
+                email: user.email,
+                name: user.name,
+                exp: Date.now() + (24 * 60 * 60 * 1000),
+                hash: hashPassword(user.email + SECRET_KEY)
+            };
+            return encryptData(payload);
+        }
+
+        function verifyToken(token) {
+            try {
+                const payload = decryptData(token);
+                if (!payload) return null;
+                if (payload.exp < Date.now()) return null;
+                const expectedHash = hashPassword(payload.email + SECRET_KEY);
+                if (payload.hash !== expectedHash) return null;
+                return payload;
+            } catch {
+                return null;
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DE LOCALSTORAGE (CRIPTOGRAFADAS)
+        // ============================================
+
+        function getUsers() {
+            try {
+                const encrypted = localStorage.getItem('acg_white_users_encrypted');
+                if (!encrypted) return [];
+                return decryptData(encrypted) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            const encrypted = encryptData(users);
+            localStorage.setItem('acg_white_users_encrypted', encrypted);
+        }
+
+        function getLoggedUser() {
+            const token = localStorage.getItem('acg_white_token_encrypted');
+            if (!token) return null;
+            const payload = verifyToken(token);
+            if (!payload) {
+                localStorage.removeItem('acg_white_token_encrypted');
+                return null;
+            }
+            const users = getUsers();
+            return users.find(u => u.email === payload.email) || null;
+        }
+
+        function setLoggedUser(user) {
+            const token = generateToken(user);
+            localStorage.setItem('acg_white_token_encrypted', token);
+        }
+
+        function clearLoggedUser() {
+            localStorage.removeItem('acg_white_token_encrypted');
+        }
+
+        function isAdminLogged() {
+            return localStorage.getItem('acg_white_admin_token_encrypted') === ADMIN_TOKEN;
+        }
+
+        function setAdminLogged(value) {
+            localStorage.setItem('acg_white_admin_token_encrypted', value ? ADMIN_TOKEN : '');
+        }
+
+        // ============================================
+        // FUNÇÕES DE MENSAGENS
+        // ============================================
+
+        function showLoading(text = '⏳ Processando...') {
+            loadingMessage.style.display = 'block';
+            loadingMessage.textContent = text;
+        }
+
+        function hideLoading() {
+            loadingMessage.style.display = 'none';
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            setTimeout(() => errorMessage.style.display = 'none', 6000);
+        }
+
+        function showSuccess(msg) {
+            successMessage.textContent = msg;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            setTimeout(() => successMessage.style.display = 'none', 5000);
+        }
+
+        // ============================================
+        // AUTENTICAÇÃO
+        // ============================================
+
+        async function handleLogin() {
+            if (await isIPBlocked()) {
+                const minutos = await getBlockTimeLeft();
+                showError(`⛔ IP BLOQUEADO! Tente novamente em ${minutos} minutos.`);
+                return;
+            }
+
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (!email || !password) {
+                showError('❌ Preencha todos os campos!');
+                return;
+            }
+
+            showLoading('🔐 Verificando credenciais...');
+            btnLogin.disabled = true;
+
+            setTimeout(async () => {
+                const users = getUsers();
+                const user = users.find(u => u.email === email);
+
+                if (!user) {
+                    const attempts = await incrementLoginAttempts();
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    
+                    if (attempts >= MAX_ATTEMPTS) {
+                        showError(`⛔ IP BLOQUEADO! Muitas tentativas. Aguarde 15 minutos.`);
+                    } else {
+                        showError(`❌ E-mail ou senha incorretos! Tentativa ${attempts}/${MAX_ATTEMPTS}`);
+                    }
+                    return;
+                }
+
+                if (!verifyHash(password, user.passwordHash)) {
+                    const attempts = await incrementLoginAttempts();
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    
+                    if (attempts >= MAX_ATTEMPTS) {
+                        showError(`⛔ IP BLOQUEADO! Muitas tentativas. Aguarde 15 minutos.`);
+                    } else {
+                        showError(`❌ E-mail ou senha incorretos! Tentativa ${attempts}/${MAX_ATTEMPTS}`);
+                    }
+                    return;
+                }
+
+                if (user.status === 'blocked') {
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    showError('⛔ Usuário bloqueado! Contate o suporte.');
+                    return;
+                }
+
+                if (user.status === 'pending') {
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    showError('⏳ Seu cadastro aguarda aprovação do administrador!');
+                    return;
+                }
+
+                if (!user.subscription || !user.subscription.active) {
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    showError('📋 Você precisa assinar um plano para acessar. Solicite um plano abaixo!');
+                    return;
+                }
+
+                if (user.subscription.expires && new Date(user.subscription.expires) < new Date()) {
+                    hideLoading();
+                    btnLogin.disabled = false;
+                    showError('⏰ Sua assinatura expirou! Renove seu plano.');
+                    user.subscription.active = false;
+                    saveUsers(users);
+                    return;
+                }
+
+                await resetLoginAttempts();
+                hideLoading();
+                btnLogin.disabled = false;
+                
+                setLoggedUser(user);
+                showSuccess('✅ Login realizado com sucesso!');
+                afterLogin(user);
+            }, 800);
+        }
+
+        function handleRegister() {
+            const name = registerName.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            const confirm = registerConfirmPassword.value.trim();
+
+            if (!name || !email || !password || !confirm) {
+                showError('❌ Preencha todos os campos!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('❌ A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+
+            if (password !== confirm) {
+                showError('❌ As senhas não coincidem!');
+                return;
+            }
+
+            showLoading('📝 Criando sua conta...');
+            btnRegister.disabled = true;
+
+            setTimeout(async () => {
+                const users = getUsers();
+                
+                if (users.some(u => u.email === email)) {
+                    hideLoading();
+                    btnRegister.disabled = false;
+                    showError('❌ Este e-mail já está cadastrado!');
+                    return;
+                }
+
+                const ip = await getRealIP();
+                const passwordHash = hashPassword(password);
+                
+                const newUser = { 
+                    name, 
+                    email, 
+                    passwordHash,
+                    ip: ip,
+                    status: 'pending',
+                    subscription: null,
+                    createdAt: new Date().toISOString(),
+                };
+                
+                users.push(newUser);
+                saveUsers(users);
+                
+                hideLoading();
+                btnRegister.disabled = false;
+                showSuccess('✅ Conta criada! Aguarde aprovação do administrador.');
+                
+                registerName.value = '';
+                registerEmail.value = '';
+                registerPassword.value = '';
+                registerConfirmPassword.value = '';
+                toggleForms('login');
+            }, 800);
+        }
+
+        function afterLogin(user) {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'none';
+            
+            menuPerfilLi.classList.remove('menu-item-hidden');
+            menuSairLi.classList.remove('menu-item-hidden');
+            menuPerfil.innerHTML = `<i class="fas fa-user"></i> ${user.name}`;
+        }
+
+        function afterLogout() {
+            menuPerfilLi.classList.add('menu-item-hidden');
+            menuSairLi.classList.add('menu-item-hidden');
+            menuPerfil.innerHTML = `<i class="fas fa-user"></i> Meu Perfil`;
+        }
+
+        function toggleForms(form) {
+            if (form === 'register') {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // ============================================
+        // PAINEL ADMIN
+        // ============================================
+
+        function renderAdminPanel() {
+            const users = getUsers();
+            const pendingUsers = users.filter(u => u.status === 'pending');
+            const approvedUsers = users.filter(u => u.status === 'approved');
+            const subscriptionUsers = users.filter(u => u.subscription && u.subscription.active);
+
+            adminTotal.textContent = users.length;
+            adminPending.textContent = pendingUsers.length;
+            adminApproved.textContent = approvedUsers.length;
+            adminSubscriptions.textContent = subscriptionUsers.length;
+
+            if (users.length === 0) {
+                adminTableBody.innerHTML = '<tr><td colspan="5" class="admin-empty">Nenhum usuário cadastrado</td></tr>';
+                return;
+            }
+
+            adminTableBody.innerHTML = users.map((user, index) => `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td class="${user.status === 'pending' ? 'status-pending' : user.status === 'blocked' ? 'status-pending' : 'status-approved'}">
+                        ${user.status === 'pending' ? '⏳ Pendente' : 
+                          user.status === 'blocked' ? '🚫 Bloqueado' : '✅ Aprovado'}
+                    </td>
+                    <td>
+                        ${user.subscription && user.subscription.active ? 
+                            `<span style="color:#ffd700;">${user.subscription.plan} ✅</span>` : 
+                            `<span style="color:#666;">Sem assinatura</span>`
+                        }
+                    </td>
+                    <td>
+                        ${user.status === 'pending' ? 
+                            `<button class="admin-btn-approve" onclick="approveUser(${index})">✅ Aprovar</button>` :
+                            user.status === 'approved' ?
+                            `<button class="admin-btn-subscription" onclick="approveSubscription(${index})">📋 Assinar</button>
+                             <button class="admin-btn-delete" onclick="deleteUser(${index})">🗑️</button>` :
+                            `<button class="admin-btn-approve" onclick="approveUser(${index})">✅ Reativar</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.approveUser = function(index) {
+            const users = getUsers();
+            if (users[index]) {
+                users[index].status = 'approved';
+                saveUsers(users);
+                renderAdminPanel();
+                showSuccess('✅ Usuário aprovado com sucesso!');
+            }
+        };
+
+        window.approveSubscription = function(index) {
+            const users = getUsers();
+            if (users[index]) {
+                const plan = prompt('Qual plano foi assinado?\n\nDigite:\n- semanal (R$ 47,99)\n- mensal (R$ 87,99)\n- anual (R$ 197,99)');
+                if (plan && ['semanal', 'mensal', 'anual'].includes(plan.toLowerCase())) {
+                    const days = plan === 'semanal' ? 7 : plan === 'mensal' ? 30 : 365;
+                    const expires = new Date();
+                    expires.setDate(expires.getDate() + days);
+                    
+                    users[index].subscription = {
+                        plan: plan.toLowerCase(),
+                        active: true,
+                        expires: expires.toISOString()
+                    };
+                    saveUsers(users);
+                    renderAdminPanel();
+                    showSuccess(`📋 Assinatura ${plan} aprovada! Expira em ${days} dias.`);
+                } else {
+                    showError('❌ Plano inválido! Use: semanal, mensal ou anual');
+                }
+            }
+        };
+
+        window.deleteUser = function(index) {
+            if (confirm('⚠️ Tem certeza que deseja excluir este usuário?')) {
+                const users = getUsers();
+                users.splice(index, 1);
+                saveUsers(users);
+                renderAdminPanel();
+                showSuccess('🗑️ Usuário removido!');
+            }
+        };
+
+        function handleAdminLogin() {
+            const email = adminEmail.value.trim();
+            const password = adminPassword.value.trim();
+
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                setAdminLogged(true);
+                adminLoginForm.style.display = 'none';
+                adminContent.style.display = 'block';
+                renderAdminPanel();
+                showSuccess('👑 Bem-vindo ao Painel ADM!');
+            } else {
+                showError('❌ Credenciais de administrador inválidas!');
+            }
+        }
+
+        function handleAdminLogout() {
+            if (confirm('⚠️ Sair do painel administrativo?')) {
+                setAdminLogged(false);
+                adminLoginForm.style.display = 'block';
+                adminContent.style.display = 'none';
+                showSuccess('🚪 Saiu do painel ADM.');
+            }
+        }
+
+        // ============================================
+        // BOTÕES DE COMPRA DOS PLANOS
+        // ============================================
+
+        document.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const href = this.dataset.href;
+                if (href) {
+                    // Quando o usuário clica em comprar, parar o timer se estiver ativo
+                    if (isTimerRunning) {
+                        stopFreeTimer();
+                    }
+                    window.open(href, '_blank');
+                    showSuccess('🔗 Redirecionando para o pagamento...');
+                } else {
+                    showError('❌ Link de pagamento não disponível.');
+                }
+            });
+        });
+
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const btn = this.querySelector('.plan-btn');
+                if (btn && !btn.disabled) btn.click();
+            });
+        });
+
+        // ============================================
+        // MENU
+        // ============================================
+
+        function toggleMenu() {
+            sideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+        }
+
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        menuOverlay.addEventListener('click', closeMenu);
+
+        document.addEventListener('click', function(e) {
+            if (sideMenu.classList.contains('open')) {
+                const isMenuClick = sideMenu.contains(e.target) || menuToggle.contains(e.target);
+                if (!isMenuClick) {
+                    closeMenu();
+                }
+            }
+        });
+
+        menuHome.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        menuPerfil.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (user) {
+                const sub = user.subscription && user.subscription.active ? 
+                    `📋 Plano: ${user.subscription.plan}\n⏰ Expira: ${new Date(user.subscription.expires).toLocaleDateString()}` : 
+                    '📋 Sem assinatura ativa';
+                alert(`👤 Perfil: ${user.name}\n📧 E-mail: ${user.email}\n${sub}`);
+            } else {
+                alert('👤 Faça login para ver seu perfil');
+            }
+        });
+
+        menuAdmin.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            adminPanel.classList.toggle('active');
+            if (adminPanel.classList.contains('active')) {
+                if (isAdminLogged()) {
+                    adminLoginForm.style.display = 'none';
+                    adminContent.style.display = 'block';
+                    renderAdminPanel();
+                } else {
+                    adminLoginForm.style.display = 'block';
+                    adminContent.style.display = 'none';
+                }
+                adminPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        menuTelegramChat.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            window.open('https://t.me/acgwhitevip', '_blank');
+        });
+
+        menuTelegramChannel.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            const user = getLoggedUser();
+            if (!user) {
+                showError('❌ Faça login para acessar!');
+                return;
+            }
+            window.open('https://t.me/acgwhite', '_blank');
+        });
+
+        menuSair.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            if (confirm('⚠️ Tem certeza que deseja sair?')) {
+                clearLoggedUser();
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginEmail.value = '';
+                loginPassword.value = '';
+                afterLogout();
+                showSuccess('🚪 Você saiu do sistema.');
+            }
+        });
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        btnLogin.addEventListener('click', handleLogin);
+        btnRegister.addEventListener('click', handleRegister);
+
+        btnShowRegister.addEventListener('click', () => toggleForms('register'));
+        btnShowLogin.addEventListener('click', () => toggleForms('login'));
+
+        btnAdminLogin.addEventListener('click', handleAdminLogin);
+        btnAdminLogout.addEventListener('click', handleAdminLogout);
+
+        loginPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') btnLogin.click();
+        });
+
+        registerConfirmPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') btnRegister.click();
+        });
+
+        adminPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') btnAdminLogin.click();
+        });
+
+        // ============================================
+        // IFRAME
+        // ============================================
+
+        const iframeContainer = document.getElementById('iframe-container');
+        const loginIframe = document.getElementById('login-iframe');
+        const closeIframeBtn = document.getElementById('close-iframe');
+
+        function openIframe(url) {
+            if (!url) return;
+            loginIframe.src = url;
+            iframeContainer.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeIframe() {
+            iframeContainer.style.display = 'none';
+            loginIframe.src = '';
+            document.body.style.overflow = '';
+        }
+
+        closeIframeBtn.addEventListener('click', closeIframe);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && iframeContainer.style.display === 'block') closeIframe();
+        });
+        iframeContainer.addEventListener('click', (e) => {
+            if (e.target === iframeContainer) closeIframe();
+        });
+
+        // ============================================
+        // CHECK SESSION
+        // ============================================
+
+        (async function checkSession() {
+            await getRealIP();
+            
+            const user = getLoggedUser();
+            if (user) {
+                afterLogin(user);
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'none';
+                
+                // Se o usuário tem assinatura ativa, não mostrar timer
+                if (user.subscription && user.subscription.active) {
+                    // Não fazer nada
+                }
+            } else {
+                afterLogout();
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
+
+            if (isAdminLogged()) {
+                adminLoginForm.style.display = 'none';
+                adminContent.style.display = 'block';
+                renderAdminPanel();
+            }
+
+            // Verificar assinaturas expiradas
+            const users = getUsers();
+            let updated = false;
+            users.forEach(u => {
+                if (u.subscription && u.subscription.active && u.subscription.expires) {
+                    if (new Date(u.subscription.expires) < new Date()) {
+                        u.subscription.active = false;
+                        updated = true;
+                    }
+                }
+            });
+            if (updated) {
+                saveUsers(users);
+            }
+
+            // Recuperar timer se estiver ativo
+            recoverTimer();
+
+            console.log('✅ Sistema seguro v3.0 ativado!');
+            console.log('🆓 Teste grátis: 7 minutos');
+            console.log('💰 Links de compra:');
+            console.log('  • Semanal: https://p.eduzz.com/3094874');
+            console.log('  • Mensal: https://p.eduzz.com/3094885');
+            console.log('  • Anual: https://p.eduzz.com/3094888');
+        })();
+    </script>
+</body>
+</html>
